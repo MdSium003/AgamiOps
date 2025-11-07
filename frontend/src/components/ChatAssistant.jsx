@@ -7,7 +7,7 @@ function ChatAssistant() {
     {
       id: 1,
       type: 'bot',
-      text: 'Hello! I\'m BizPilot AI Assistant. How can I help you with your business planning today?',
+      text: 'Hello! I\'m AgamiOps: Marking the future AI Assistant. How can I help you with your business planning today?',
       timestamp: new Date()
     }
   ])
@@ -211,7 +211,7 @@ function ChatAssistant() {
                   background: '#4ade80'
                 }}
               />
-              <span style={{ fontWeight: '600', fontSize: '16px' }}>BizPilot AI</span>
+              <span style={{ fontWeight: '600', fontSize: '16px' }}>AgamiOps: Marking the future AI</span>
             </div>
             <button
               onClick={() => setIsOpen(false)}
@@ -458,7 +458,7 @@ function ChatAssistant() {
                 marginTop: '8px'
               }}
             >
-              Powered by BizPilot AI
+              Powered by AgamiOps: Marking the future AI
             </div>
           </div>
         </div>

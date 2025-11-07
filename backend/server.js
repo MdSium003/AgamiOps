@@ -76,11 +76,11 @@ const sendVerificationEmail = async (email, token) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
-    subject: 'Verify Your BizPilot Account',
+    subject: 'Verify Your AgamiOps: Marking the future Account',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #4a7c59;">Welcome to BizPilot!</h2>
-        <p>Thank you for registering with BizPilot. Please verify your email address to complete your account setup.</p>
+        <h2 style="color: #4a7c59;">Welcome to AgamiOps: Marking the future!</h2>
+        <p>Thank you for registering with AgamiOps: Marking the future. Please verify your email address to complete your account setup.</p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="${verificationUrl}" 
              style="background-color: #4a7c59; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">
@@ -92,7 +92,7 @@ const sendVerificationEmail = async (email, token) => {
         <p>This link will expire in 24 hours.</p>
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
         <p style="color: #666; font-size: 14px;">
-          If you didn't create an account with BizPilot, please ignore this email.
+          If you didn't create an account with AgamiOps: Marking the future, please ignore this email.
         </p>
       </div>
     `

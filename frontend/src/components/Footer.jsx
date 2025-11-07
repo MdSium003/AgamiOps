@@ -24,7 +24,7 @@ function Footer() {
             fontSize: '1.25rem',
             fontWeight: '600'
           }}>
-            BizPilot
+            AgamiOps: Marking the future
           </h3>
           <p style={{ 
             color: 'var(--muted-foreground)', 
@@ -35,7 +35,7 @@ function Footer() {
             comprehensive forecasting, and collaborative tools.
           </p>
           <div style={{ color: 'var(--muted-foreground)', fontSize: '0.875rem' }}>
-            © {new Date().getFullYear()} BizPilot. All rights reserved.
+            © {new Date().getFullYear()} AgamiOps: Marking the future. All rights reserved.
           </div>
         </div>
 

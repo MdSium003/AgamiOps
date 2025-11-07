@@ -214,7 +214,7 @@ function HomePage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `bizpilot-${scenario}-exports.zip`;
+    a.download = `agamiops-marking-the-future-${scenario}-exports.zip`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -351,7 +351,7 @@ function HomePage() {
         {!user ? (
           <section style={{ padding: '40px 0 16px' }}>
             <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-              <h2 style={{ margin: '0 0 8px', color: '#111', textAlign: 'center' }}>Why founders choose Bizpilot</h2>
+              <h2 style={{ margin: '0 0 8px', color: '#111', textAlign: 'center' }}>Why founders choose AgamiOps: Marking the future</h2>
               <p style={{ margin: '0 auto 24px', maxWidth: 820, textAlign: 'center', color: '#333' }}>A focused toolkit that gets you from idea to investor‑ready plan without the clutter.</p>
               <div style={{ display: 'grid', gap: 28, gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))' }}>
                 {[{

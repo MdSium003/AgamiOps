@@ -46,11 +46,11 @@ const DeveloperCard = ({ name, role, email, avatar, description, githubUrl, face
 export default function AboutPage() {
   const aboutData = {
     title: "About Us",
-    content: "BizPilot is an AI-powered assistant for small businesses and entrepreneurs. It helps transform raw ideas into strategic business plans with roadmaps, forecasts, and simulations.",
+    content: "AgamiOps: Marking the future is an AI-powered assistant for small businesses and entrepreneurs. It helps transform raw ideas into strategic business plans with roadmaps, forecasts, and simulations.",
     mission: "To simplify entrepreneurship by providing AI-driven guidance, making business ideation, validation, and execution accessible to everyone.",
     vision: "A future where anyone with an idea can launch a business in minutes, not months.",
     values: "Innovation, accessibility, transparency, collaboration, and empowerment.",
-    imageUrl: "https://placehold.co/500x300/8B5CF6/FFFFFF?text=BizPilot+AI"
+    imageUrl: "https://placehold.co/500x300/8B5CF6/FFFFFF?text=AgamiOps%3A%20Marking%20the%20future+AI"
   };
 
   const teamMembers = [
@@ -211,8 +211,8 @@ export default function AboutPage() {
             
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', paddingTop: '1rem' }}>
               <img 
-                src="/logo.png" 
-                alt="BizPilot Logo"
+                src="/logo3.png" 
+                alt="AgamiOps: Marking the future Logo"
                 style={{ 
                   width: 'clamp(200px, 25vw, 300px)', 
                   height: 'auto', 
@@ -274,7 +274,7 @@ export default function AboutPage() {
               margin: '0 auto',
               lineHeight: '1.6'
             }}>
-              The dedicated team behind BizPilot, bringing together expertise in technology and business innovation.
+              The dedicated team behind AgamiOps: Marking the future, bringing together expertise in technology and business innovation.
             </p>
           </div>
           
@@ -309,7 +309,7 @@ export default function AboutPage() {
               margin: '0 auto 1.5rem auto',
               lineHeight: '1.6'
             }}>
-              Join thousands of entrepreneurs who trust BizPilot to turn their ideas into successful businesses.
+              Join thousands of entrepreneurs who trust AgamiOps: Marking the future to turn their ideas into successful businesses.
             </p>
             <div style={{ 
               display: 'flex', 
