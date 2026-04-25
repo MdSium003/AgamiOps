@@ -1358,8 +1358,7 @@ Consider the location context when generating business models, including local m
 
     res.json({ models });
   } catch (e) {
-    console.error('AI generation error', e);
-    res.status(500).json({ error: 'AI generation failed' });
+    res.status(500).json({ error: 'AI generation failed: ' + (e.message || String(e)) });
   }
 });
 
