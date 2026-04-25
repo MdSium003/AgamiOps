@@ -45,8 +45,10 @@ const app = express();
 const PORT = process.env.PORT || 5050;
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
 const NODE_ENV = process.env.NODE_ENV || 'development';
-// Support multiple comma-separated origins
-const allowedOrigins = String(FRONTEND_ORIGIN).split(',').map(o => o.trim()).filter(Boolean);
+// Support multiple comma-separated origins, stripping trailing slashes
+const allowedOrigins = String(FRONTEND_ORIGIN).split(',')
+  .map(o => o.trim().replace(/\/$/, ''))
+  .filter(Boolean);
 const frontUrl = (p = '') => {
   const pathPart = String(p || '').replace(/^\//, '');
   try { return new URL(pathPart ? pathPart : '', FRONTEND_ORIGIN).toString(); } catch { return (FRONTEND_ORIGIN.replace(/\/$/, '')) + (pathPart ? '/' + pathPart : ''); }
@@ -55,12 +57,18 @@ const frontUrl = (p = '') => {
 // CORS and JSON
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // allow same-origin/no-origin (e.g., curl, mobile apps)
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    if (!origin) return callback(null, true);
+    // Allow if it exactly matches one of our configured origins
+    if (allowedOrigins.includes(origin.replace(/\/$/, ''))) return callback(null, true);
+    
+    // Automatically allow any Vercel preview branch domains for this app
+    if (origin.endsWith('.vercel.app')) return callback(null, true);
+    
     if (NODE_ENV !== 'production') {
       const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
       if (isLocalhost) return callback(null, true);
     }
+    console.warn('CORS blocked request from origin:', origin);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
