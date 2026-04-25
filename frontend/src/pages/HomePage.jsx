@@ -452,10 +452,16 @@ function HomePage() {
                 ))}
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
               <button className="primary" style={{ borderRadius: 12, fontSize: '16px', fontFamily: 'system-ui, -apple-system, sans-serif', background: '#4a7c59', color: '#fff' }} disabled={loading}>
                 {loading ? 'Generating…' : 'Generate Models'}
               </button>
+              {loading ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Spinner />
+                  <span style={{ color: '#666', fontSize: '14px' }}>Estimated time: 30–60 seconds</span>
+                </div>
+              ) : null}
               {error ? <span style={{ color: '#ff6b6b', fontSize: '14px' }}>{error}</span> : null}
             </div>
           </form>

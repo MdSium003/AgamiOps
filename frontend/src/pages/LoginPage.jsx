@@ -122,7 +122,6 @@ function LoginPage() {
         </form>
         <div style={{ marginTop: 16, display: 'grid', gap: 8 }}>
           <button className="glass" style={{ borderRadius: 12 }} onClick={()=>oauth('google')}>Continue with Google</button>
-          <button className="glass" style={{ borderRadius: 12 }} onClick={()=>oauth('linkedin')}>Continue with LinkedIn</button>
         </div>
         {mode === 'login' && canResend && (
           <div style={{ marginTop: 16, textAlign: 'center' }}>

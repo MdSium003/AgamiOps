@@ -222,14 +222,16 @@ async function ensureSchema() {
 ensureSchema().catch(err => console.error('Schema error', err));
 
 // Sessions
+const isProduction = NODE_ENV === 'production';
+if (isProduction) app.set('trust proxy', 1); // trust Render's proxy
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev_secret_change_me',
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: false,
-    sameSite: 'lax',
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
     maxAge: 1000 * 60 * 60 * 24 * 7
   }
 }));
