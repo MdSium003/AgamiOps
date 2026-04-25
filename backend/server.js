@@ -10,9 +10,32 @@ const { Pool } = require('pg');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 require('dotenv').config();
-// AI: Gemini
-let GoogleGenerativeAI;
-try { ({ GoogleGenerativeAI } = require('@google/generative-ai')); } catch {}
+// AI: OpenRouter (OpenAI-compatible endpoint)
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+async function callOpenRouter(prompt, { systemPrompt, maxTokens = 4096 } = {}) {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) throw new Error('OPENROUTER_API_KEY not set');
+  const model = process.env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-001';
+  const messages = [];
+  if (systemPrompt) messages.push({ role: 'system', content: systemPrompt });
+  messages.push({ role: 'user', content: prompt });
+  const resp = await fetch(OPENROUTER_API_URL, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
+      'X-Title': 'AgamiOps'
+    },
+    body: JSON.stringify({ model, messages, max_tokens: maxTokens })
+  });
+  if (!resp.ok) {
+    const errBody = await resp.text().catch(() => '');
+    throw new Error(`OpenRouter ${resp.status}: ${errBody}`);
+  }
+  const json = await resp.json();
+  return json.choices?.[0]?.message?.content || '';
+}
 
 // Optional OAuth strategies
 let GoogleStrategy;
@@ -843,22 +866,11 @@ app.post('/inventory/analyze-image', async (req, res) => {
     fs.writeFileSync(outPath, buf);
 
     // Optional AI vision (fallback to heuristic)
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_API_TOKEN;
-    let aiModel = null;
-    if (apiKey && GoogleGenerativeAI) {
-      try {
-        const client = new GoogleGenerativeAI(apiKey);
-        aiModel = client.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-1.5-flash' });
-      } catch {}
-    }
-
     let analysis = null;
-    if (aiModel) {
+    if (process.env.OPENROUTER_API_KEY) {
       try {
-        // Use a text prompt referring to the image (note: real vision models require image parts; this is a simplified flow).
-        const prompt = `You are a vision QA assistant. Given a product photo, estimate: (1) the count of visible items, (2) a short quality assessment Good/Acceptable/Poor with one reason, (3) the most likely product type (e.g., phone, dress, shoes, bottle, laptop, toy). Return only JSON: { "estimatedCount": number, "quality": "Good|Acceptable|Poor", "productType": string, "note": string }.`;
-        const result = await aiModel.generateContent(`${prompt}\nNote: If unsure, give your best estimate.`);
-        const text = result.response?.text?.() || '';
+        const prompt = `You are a vision QA assistant. Given a product photo, estimate: (1) the count of visible items, (2) a short quality assessment Good/Acceptable/Poor with one reason, (3) the most likely product type (e.g., phone, dress, shoes, bottle, laptop, toy). Return only JSON: { "estimatedCount": number, "quality": "Good|Acceptable|Poor", "productType": string, "note": string }.\nNote: If unsure, give your best estimate.`;
+        const text = await callOpenRouter(prompt);
         const jsonLike = String(text).trim().replace(/^```json\n?|\n?```$/g, '');
         try { analysis = JSON.parse(jsonLike); } catch {}
       } catch {}
@@ -890,17 +902,9 @@ app.post('/inventory/analyze-image', async (req, res) => {
 // AI route: Analyze inventory data
 app.post('/ai/inventory-analysis', async (req, res) => {
   try {
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_API_TOKEN;
-
     const { inventoryData } = req.body || {};
     if (!Array.isArray(inventoryData) || inventoryData.length === 0) {
       return res.status(400).json({ error: 'inventoryData must be a non-empty array' });
-    }
-
-    let aiModel = null;
-    if (apiKey && GoogleGenerativeAI) {
-      const client = new GoogleGenerativeAI(apiKey);
-      aiModel = client.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-1.5-flash' });
     }
 
     // Analyze the inventory data structure
@@ -1014,12 +1018,11 @@ Guidelines:
 - Create realistic chart data based on the actual inventory
 - Focus on business value and actionable insights`;
 
-    const prompt = `${system}\n\nInventory Data Summary:\n${JSON.stringify(dataSummary, null, 2)}`;
+    const userPrompt = `Inventory Data Summary:\n${JSON.stringify(dataSummary, null, 2)}`;
     let analysis = null;
-    if (aiModel) {
+    if (process.env.OPENROUTER_API_KEY) {
       try {
-        const result = await aiModel.generateContent(prompt);
-        const text = result.response?.text?.() || result.response?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        const text = await callOpenRouter(userPrompt, { systemPrompt: system, maxTokens: 8192 });
         const jsonLike = String(text).trim().replace(/^```json\n?|\n?```$/g, '');
         try { analysis = JSON.parse(jsonLike); }
         catch {
@@ -1198,18 +1201,14 @@ Guidelines:
 // AI route: Generate a plan-specific checklist
 app.post('/ai/plan-checklist', async (req, res) => {
   try {
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_API_TOKEN;
-    if (!apiKey || !GoogleGenerativeAI) {
-      return res.status(501).json({ error: 'Gemini not configured on server' });
+    if (!process.env.OPENROUTER_API_KEY) {
+      return res.status(501).json({ error: 'OpenRouter not configured on server' });
     }
 
     const { model } = req.body || {};
     if (!model || !model.name) {
       return res.status(400).json({ error: 'model is required' });
     }
-
-    const client = new GoogleGenerativeAI(apiKey);
-    const aiModel = client.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-1.5-flash' });
 
     const system = `You are an operator coach. Create a practical 8-14 item startup execution checklist tailored to the provided business model.
 The checklist MUST be strictly sequential like a journey: each task depends on the previous being completed. Order the items from first to last.
@@ -1229,9 +1228,8 @@ Return ONLY a JSON array (no prose). Each item must have: title, details, catego
       financialAssumptions: String(model.financialAssumptions || '')
     };
 
-    const prompt = `${system}\n\nBusiness Model:\n${JSON.stringify(brief, null, 2)}`;
-    const result = await aiModel.generateContent(prompt);
-    const text = result.response?.text?.() || result.response?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const userPrompt = `Business Model:\n${JSON.stringify(brief, null, 2)}`;
+    const text = await callOpenRouter(userPrompt, { systemPrompt: system });
 
     const jsonLike = String(text).trim().replace(/^```json\n?|\n?```$/g, '');
     let data;
@@ -1264,9 +1262,8 @@ Return ONLY a JSON array (no prose). Each item must have: title, details, catego
 // AI route: Generate 2-3 business model options from an idea/brief
 app.post('/ai/business-models', async (req, res) => {
   try {
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_API_TOKEN;
-    if (!apiKey || !GoogleGenerativeAI) {
-      return res.status(501).json({ error: 'Gemini not configured on server' });
+    if (!process.env.OPENROUTER_API_KEY) {
+      return res.status(501).json({ error: 'OpenRouter not configured on server' });
     }
 
     const { idea, count, location } = req.body || {};
@@ -1274,9 +1271,6 @@ app.post('/ai/business-models', async (req, res) => {
     if (!trimmed) return res.status(400).json({ error: 'idea is required' });
     const num = Math.min(Math.max(parseInt(count || 3, 10) || 3, 2), 3);
     const locationText = String(location || '').trim();
-
-    const client = new GoogleGenerativeAI(apiKey);
-    const model = client.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-1.5-flash' });
 
     const system = `You are a startup consultant. Generate ${num} distinct business model options for the given idea.
 Return ONLY a valid JSON array. No prose. Each item must be an object with these fields:
@@ -1291,9 +1285,8 @@ financialAssumptions, projections.
 Consider the location context when generating business models, including local market conditions, regulations, competition, and opportunities.`;
 
     const locationContext = locationText ? `\nLocation: ${locationText}` : '';
-    const prompt = `${system}\n\nIdea: ${trimmed}${locationContext}`;
-    const result = await model.generateContent(prompt);
-    const text = result.response?.text?.() || result.response?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const userPrompt = `Idea: ${trimmed}${locationContext}`;
+    const text = await callOpenRouter(userPrompt, { systemPrompt: system, maxTokens: 8192 });
 
     // Extract JSON from response (in case fenced)
     const jsonLike = String(text).trim().replace(/^```json\n?|\n?```$/g, '');

@@ -867,7 +867,7 @@ function HomePage() {
 
               {/* Actions at bottom */}
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
-                <button className="primary" style={{ borderRadius: 12, background: '#4a7c59', color: '#fff' }} onClick={() => handleSelectPlan(detailsModel)}>Add to my Checklist</button>
+                <button className="primary" style={{ borderRadius: 12, background: '#4a7c59', color: '#fff' }} onClick={() => handleSelectPlan(detailsModel)}>Add to my Business</button>
                 <button className="glass" style={{ color: '#111', background: '#f5f1eb', borderRadius: 12 }} onClick={() => setDetailsModel(null)}>Close</button>
               </div>
             </div>

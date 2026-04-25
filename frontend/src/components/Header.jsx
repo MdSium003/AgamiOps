@@ -39,7 +39,7 @@ function Header({ onLogin, onContact }) {
           {user ? (
             <>
               <Link to="/about-us" className="glass" style={{ borderRadius: 12, display: 'inline-block', padding: '10px 16px' }}>About Us</Link>
-              <Link to="/checklists" className="glass" style={{ borderRadius: 12, display: 'inline-block', padding: '10px 16px' }}>My Checklists</Link>
+              <Link to="/checklists" className="glass" style={{ borderRadius: 12, display: 'inline-block', padding: '10px 16px' }}>My Business</Link>
               <Link to="/marketplace" className="glass" style={{ borderRadius: 12, display: 'inline-block', padding: '10px 16px' }}>Marketplace</Link>
               <Link to="/profile" className="glass" style={{ borderRadius: 12, display: 'inline-block', padding: '10px 16px' }}>My Profile</Link>
               <button className="primary" style={{ borderRadius: 12 }} onClick={logout}>Logout</button>

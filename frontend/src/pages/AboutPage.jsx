@@ -25,7 +25,7 @@ const DeveloperCard = ({ name, role, email, avatar, description, githubUrl, face
       >
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.15) 60%, transparent)' }} />
         <div style={{ position: 'absolute', left: 20, right: 20, bottom: 20, color: '#fff' }}>
-          <h3 style={{ fontSize: 'clamp(1.3rem, 2.2vw, 1.8rem)', fontWeight: 800, margin: 0 }}>{name}</h3>
+          <h3 style={{ fontSize: 'clamp(1.3rem, 2.2vw, 1.8rem)', fontWeight: 800, margin: 0, color: '#f5f0eb' }}>{name}</h3>
           <div style={{ color: '#c4b5fd', fontWeight: 700, marginTop: 4 }}>{role}</div>
           <p style={{ marginTop: 8, maxWidth: 560, lineHeight: 1.5, opacity: 0.95 }}>{description}</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 14 }}>
@@ -55,21 +55,12 @@ export default function AboutPage() {
 
   const teamMembers = [
     {
-      name: "Mohammad Sium",
+      name: "Md. Sium",
       role: "CSE, BUET",
       email: "mdsium2004@gmail.com",
       avatar: "/sium.jpg",
       githubUrl: "https://github.com/MdSium003",
       facebookUrl: "https://www.facebook.com/Md.Sium.0003",
-      description: ""
-    },
-    {
-      name: "Priyanjan Das Anabil",
-      role: "CSE, BUET",
-      email: "anabil.das2003@gmail.com",
-      avatar: "/anabil.jpg",
-      githubUrl: "https://github.com/Anabil-19",
-      facebookUrl: "https://www.facebook.com/priyanjan.dasanabil.5",
       description: ""
     },
     {
@@ -79,6 +70,24 @@ export default function AboutPage() {
       avatar: "rafsan.jpg",
       githubUrl: "https://github.com/RJBISLAM",
       facebookUrl: "https://www.facebook.com/rafsanjbi",
+      description: ""
+    },
+    {
+      name: "Niloy Faiaz",
+      role: "CSE, BUET",
+      email: "",
+      avatar: "/niloy.jpg",
+      githubUrl: "",
+      facebookUrl: "",
+      description: ""
+    },
+    {
+      name: "Tahmid Khan",
+      role: "CSE, BUET",
+      email: "",
+      avatar: "/tahmid.jpg",
+      githubUrl: "",
+      facebookUrl: "",
       description: ""
     }
   ];
@@ -280,7 +289,7 @@ export default function AboutPage() {
           
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+            gridTemplateColumns: 'repeat(4, 1fr)', 
             gap: '1.5rem' 
           }}>
             {teamMembers.map((member, index) => (

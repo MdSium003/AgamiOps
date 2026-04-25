@@ -167,7 +167,7 @@ function ChecklistsPage() {
   return (
     <div style={{ minHeight: '100vh', padding: 16 }}>
       <div style={{ position: 'relative', zIndex: 1, display: 'grid', gap: 16, alignContent: 'start' }}>
-        <Card title="My Checklists">
+        <Card title="My Business">
           {items.length === 0 ? (
             <div style={{ color: 'var(--muted-foreground)' }}>No checklists found.</div>
           ) : (
