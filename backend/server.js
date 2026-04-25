@@ -1283,7 +1283,7 @@ app.post('/ai/business-models', async (req, res) => {
     const locationText = String(location || '').trim();
 
     const system = `You are a startup consultant. Generate ${num} distinct business model options for the given idea.
-Return ONLY a valid JSON array. No prose. Each item must be an object with these fields:
+Return ONLY a valid JSON array. No prose, no markdown formatting. Each item must be an object with these fields:
 name, description, targetCustomer, valueProp, pricing, revenueStreams, startupCosts, keyActivities, risks, marketingPlan, operations,
 financialAssumptions, projections.
 - financialAssumptions: a one-sentence summary of core numeric assumptions.
@@ -1292,22 +1292,45 @@ financialAssumptions, projections.
   revenue: [number...],
   costs: [number...],
   customers: [number...].
-Consider the location context when generating business models, including local market conditions, regulations, competition, and opportunities.`;
+Consider the location context when generating business models.
+CRITICAL: Output STRICT, VALID JSON ONLY. Do NOT use trailing commas. Ensure all brackets and braces are closed.`;
 
     const locationContext = locationText ? `\nLocation: ${locationText}` : '';
     const userPrompt = `Idea: ${trimmed}${locationContext}`;
     const text = await callOpenRouter(userPrompt, { systemPrompt: system, maxTokens: 8192 });
 
     // Extract JSON from response (in case fenced)
-    const jsonLike = String(text).trim().replace(/^```json\n?|\n?```$/g, '');
+    let jsonLike = String(text).trim().replace(/^```(json)?\n?|\n?```$/gi, '');
+    
+    // Auto-repair common JSON mistakes from free AI models
+    jsonLike = jsonLike.replace(/,\s*([\]}])/g, '$1'); // Fix trailing commas
+    
     let data;
-    try { data = JSON.parse(jsonLike); } catch {
-      // attempt to find first [ ... ] block
-      const match = jsonLike.match(/\[[\s\S]*\]/);
-      data = match ? JSON.parse(match[0]) : null;
+    try { 
+      data = JSON.parse(jsonLike); 
+    } catch (err1) {
+      try {
+        // attempt to find first [ ... ] block
+        const match = jsonLike.match(/\[[\s\S]*\]/);
+        data = match ? JSON.parse(match[0]) : null;
+      } catch (err2) {
+        // Attempt to repair cut-off JSON by capping it at the last complete object
+        try {
+          const lastBrace = jsonLike.lastIndexOf('}');
+          if (lastBrace > 0) {
+            const repaired = jsonLike.substring(0, lastBrace + 1) + ']';
+            data = JSON.parse(repaired);
+          } else {
+            throw err2;
+          }
+        } catch (err3) {
+          throw new Error("AI returned malformed JSON: " + err1.message);
+        }
+      }
     }
+    
     if (!Array.isArray(data)) {
-      return res.status(500).json({ error: 'Failed to parse AI response' });
+      return res.status(500).json({ error: 'Failed to parse AI response into an array' });
     }
     // Ensure at most num items and sanitize fields
     const models = data.slice(0, num).map((m, idx) => ({
